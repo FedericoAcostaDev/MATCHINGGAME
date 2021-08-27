@@ -15,7 +15,7 @@ class AudioController {
         this.bgMusic.pause();
         this.bgMusic.currentTime = 0;
     }
-    flipSound() {
+    flip() {
         this.flipSound.play();
     }
     match() {
@@ -31,14 +31,14 @@ class AudioController {
     }
 }
 
-class mixOrMatch {
+class MixOrMatch {
     constructor(totalTime, cards) {
         this.cardsArray = cards;
         this.totalTime = totalTime;
         this.timeRemaining = totalTime;
         this.timer = document.getElementById('time-remaining');
         this.ticker = document.getElementById('flips');
-        this.AudioController = new AudioController();
+        this.audioController = new AudioController();
 
     }
     startGame() {
@@ -47,16 +47,31 @@ class mixOrMatch {
         this.timeRemaining = this.totalTime;
         this.matchedCards = [];
         this.busy = true;
+
+        this.shuffleCards();
     }
-    fliCard(card) {
+    flipCard(card) {
         if(this.canFlipCard(card)) {
             this.audioController.flip();
+            this.totalClicks++;
+            this.ticker.innerText = this.totalClicks;
+            card.classList.add('visible');
+
+            //if statement
         }
 
     }
+    shuffleCards() {
+        for(let i = this.cardsArray.length - 1; i > 0; i --) {
+            let randIndex = Math.floor(Math.random() * (i+1));
+            this.cardsArray[randIndex].style.order = i;
+            this.cardsArray[i].style.order = randIndex;
+
+        }
+    }
 
     canFlipCard(card) {
-        return true
+        return true;
         // return !this.busy && !this.matchedCards.includes(card) && card !== this.cardToCheck;
     }
 }
@@ -65,7 +80,7 @@ class mixOrMatch {
 function ready() {
     let overlays = Array.from(document.getElementsByClassName('overlay-text'));
     let cards = Array.from(document.getElementsByClassName('card'));
-    let game = new mixOrMatch(100, cards);
+    let game = new MixOrMatch(100, cards);
 
     overlays.forEach(overlay => {
         overlay.addEventListener('click', () => {
@@ -76,9 +91,8 @@ function ready() {
     });
     cards.forEach(card => {
         card.addEventListener('click', () => {
-            game.fliCard(card);
-
-        })
+            game.flipCard(card);
+        });
 
     });
 }
